@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Cart - SABRA Eats</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<!-- අර කලින් හැදුව Navbar එක මෙතනත් දාන්න පුළුවන් (කෙටියෙන් දාලා තියෙන්නේ) -->
+<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-warning" th:href="@{/}">🍔 SABRA Eats</a>
+        <a class="btn btn-outline-light btn-sm" th:href="@{/}">Back to Home</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h2 class="mb-4 text-dark fw-bold">🛒 My Shopping Cart</h2>
+
+    <div th:if="${#lists.isEmpty(cartItems)}" class="alert alert-warning text-center">
+        ඔබේ කූඩය හිස්! කරුණාකර කෑම වර්ග එකතු කරන්න.
+    </div>
+
+    <div th:if="${param.ordered}" class="alert alert-success text-center fw-bold shadow-sm mt-3">
+        🎉 Your order has been placed successfully! (ඔබගේ ඇණවුම සාර්ථකයි!)
+    </div>
+
+    <div th:if="${not #lists.isEmpty(cartItems)}" class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle">
+                <thead class="table-warning">
+                <tr>
+                    <th>Food Item</th>
+                    <th>Quantity</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${cartItems}">
+                    <td class="fw-bold" th:text="${item.itemName}">Item Name</td>
+                    <td th:text="${item.quantity}">1</td>
+                    <td class="text-end" th:text="'Rs. ' + ${item.price}">Rs. 0.00</td>
+
+                    <td class="text-center">
+                        <a th:href="@{/cart/remove/{id}(id=${item.id})}"
+                           class="btn btn-danger btn-sm fw-bold"
+                           onclick="return confirm('මෙම කෑම එක Cart එකෙන් ඉවත් කිරීමට අවශ්‍යද?')">
+                            ❌ Remove
+                        </a>
+                    </td>
+
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end fw-bold fs-5">Grand Total :</td>
+                    <td class="text-end fw-bold fs-5 text-danger" th:text="'Rs. ' + ${total}">Rs. 0.00</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="card-footer bg-white text-end p-4">
+            <h4 class="fw-bold">Total: Rs. <span class="text-danger" th:text="${total}">0.0</span></h4>
+            <a th:href="@{/cart/checkout}" class="btn btn-success btn-lg fw-bold w-100 mt-3">
+                💳 Proceed to Checkout
+            </a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

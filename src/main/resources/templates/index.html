@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SABRA Eats - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<li class="nav-item">
+    <a class="nav-link text-warning fw-bold me-3" th:href="@{/cart}">🛒 My Cart</a>
+</li>
+
+
+<!-- ලස්සන Bootstrap Navbar එකක් -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container">
+        <!-- වෙබ්සයිට් එකේ නම (Logo) -->
+        <a class="navbar-brand fw-bold text-warning" th:href="@{/}">🍔 SABRA Eats</a>
+
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+
+                <li class="nav-item">
+                    <a class="nav-link text-white" th:href="@{/}">Home</a>
+                </li>
+
+                <!-- 1. යූසර් ලොග් වෙලා නැත්නම් (Login / Register පෙන්වන්න) -->
+                <th:block th:if="${session.loggedInUser == null}">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}">Login</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="btn btn-warning btn-sm fw-bold text-dark" th:href="@{/register}">Sign Up</a>
+                    </li>
+                </th:block>
+
+                <!-- 2. යූසර් ලොග් වෙලා ඉන්නවා නම් (නම සහ Logout පෙන්වන්න) -->
+                <th:block th:if="${session.loggedInUser != null}">
+                    <li class="nav-item">
+                        <span class="nav-link text-light me-3 border-end pe-3">
+                            Welcome, <strong class="text-warning" th:text="${session.loggedInUser.name}">User</strong>!
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-danger btn-sm fw-bold" th:href="@{/logout}">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/orders}" class="btn btn-outline-info fw-bold">📦 My Orders</a>
+                    </li>
+
+                </th:block>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<nav class="navbar navbar-dark bg-warning mb-4 shadow-sm">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1 fs-3 text-dark fw-bold">🍔 SABRA Eats</span>
+    </div>
+</nav>
+
+<div class="container text-center">
+    <h2 class="mb-3 text-dark">සබරගමුව කැම්පස් එකේ රසම කෑම! 🤤</h2>
+    <p class="text-muted mb-4">දැන් එකම තැනකින් බලාගන්න, කඩවල් ඇතුලත් කරන්න.</p>
+
+    <!-- Admin ට පමණක් Add Shop පෙන්වන්න -->
+    <div th:if="${session.loggedInUser != null and session.loggedInUser.role == 'ADMIN'}" class="card shadow-sm mx-auto mb-5" style="max-width: 500px; border-radius: 15px;">
+        <div class="card-body p-4">
+            <h5 class="card-title text-success mb-4 fw-bold">🏪 Add a New Shop</h5>
+            <form th:action="@{/addShop}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="text" name="shop_name" class="form-control" placeholder="Shop Name" required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" name="location" class="form-control" placeholder="Location" required>
+                </div>
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold text-muted">Shop Image</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 fw-bold">➕ Add Shop</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center mb-5">
+        <div class="col" th:each="shop : ${shops}">
+            <div class="card h-100 shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+
+                <!-- Database එකේ ෆොටෝ එකක් සේව් වෙලා තියෙනවා නම් මේක පෙනේවි -->
+                <img th:if="${shop.image != null}" th:src="@{'/uploads/' + ${shop.image}}"
+                     class="card-img-top" alt="Shop Image" style="height: 200px; object-fit: cover;">
+
+                <!-- Database එකේ ෆොටෝ එකක් නැත්නම් මේ No Image එක පෙනේවි -->
+                <img th:if="${shop.image == null}" src="https://placehold.co/600x400?text=No+Image"
+                     class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;">
+
+                <div class="card-body d-flex flex-column border-top border-warning border-4">
+                    <h4 class="card-title fw-bold text-dark mb-1" th:text="${shop.shop_name}">Shop Name</h4>
+                    <p class="card-text text-muted" th:text="'📍 ' + ${shop.location}">Location</p>
+
+                    <div class="d-flex justify-content-between mt-auto pt-3">
+                        <a th:href="@{/shop/{id}(id=${shop.shop_id})}" class="btn btn-warning w-50 me-2 fw-bold text-dark">🍽️ Menu</a>
+                        <!-- Admin ට පමණක් Shop Delete පෙන්වන්න -->
+                        <a th:if="${session.loggedInUser != null and session.loggedInUser.role == 'ADMIN'}"
+                           th:href="@{/shop/delete/{id}(id=${shop.shop_id})}"
+                           class="btn btn-outline-danger w-50 fw-bold"
+                           onclick="return confirm('ඔබට විශ්වාසද මේ කඩය මකා දැමීමට අවශ්‍ය බව?')">🗑️ Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

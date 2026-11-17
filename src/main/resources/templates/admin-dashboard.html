@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Sabra Eats</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-content-center mb-4">
+        <h2>👨‍💻 Sabra Eats - Admin Dashboard</h2>
+        <a href="/shop/1" class="btn btn-secondary">Go to Shop</a>
+    </div>
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">📦 Customer Orders Management</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Order ID</th>
+                    <th>User ID</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Current Status</th>
+                    <th>Action (Change Status)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.order_id}">1</td>
+                    <td th:text="${order.userId}">10</td>
+                    <td th:text="${order.itemName}">Kottu</td>
+                    <td th:text="${order.quantity}">2</td>
+                    <td th:text="${'Rs. ' + order.totalPrice}">Rs. 1200</td>
+                    <td>
+                        <span th:text="${order.status}"
+                              th:classappend="${order.status == 'PENDING' ? 'badge bg-warning text-dark' : (order.status == 'COOKING' ? 'badge bg-info text-dark' : 'badge bg-success')}">
+                            PENDING
+                        </span>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/order/update-status}" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="orderId" th:value="${order.order_id}">
+                            <select name="status" class="form-select form-select-sm" style="width: 130px;">
+                                <option value="PENDING" th:selected="${order.status == 'PENDING'}">PENDING</option>
+                                <option value="COOKING" th:selected="${order.status == 'COOKING'}">COOKING</option>
+                                <option value="DELIVERED" th:selected="${order.status == 'DELIVERED'}">DELIVERED</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(orders)}">
+                    <td colspan="7" class="text-center text-muted">No orders available yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">➕ Add New Food Item</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/menu/add}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Food Name</label>
+                            <input type="text" name="name" class="form-create form-control" placeholder="e.g. Chicken Kottu" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price (Rs.)</label>
+                            <input type="number" step="0.01" name="price" class="form-control" placeholder="e.g. 750" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Shop ID</label>
+                            <input type="number" name="shopId" class="form-control" placeholder="e.g. 1" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Add to Menu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🍔 Current Menu Items</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead class="table-primary">
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Food Name</th>
+                            <th>Price</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : ${menuItems}">
+                            <td th:text="${item.item_id}">1</td>
+                            <td th:text="${item.name}">Burger</td>
+                            <td th:text="${'Rs. ' + item.price}">Rs. 500</td>
+                            <td>
+                                <a th:href="@{'/admin/menu/delete/' + ${item.item_id}}"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Are you sure you want to delete this item?');">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(menuItems)}">
+                            <td colspan="4" class="text-center text-muted">No items in the menu.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
